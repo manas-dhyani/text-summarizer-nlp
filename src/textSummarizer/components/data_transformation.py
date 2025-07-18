@@ -20,9 +20,20 @@ class DataTransformation:
             'attention_mask': input_encodings['attention_mask'],
             'labels': target_encodings['input_ids']
         }
-    
-
     def convert(self):
-        dataset_samsum = load_from_disk(self.config.data_path)
-        dataset_samsum_pt = dataset_samsum.map(self.convert_examples_to_features, batched = True)
-        dataset_samsum_pt.save_to_disk(os.path.join(self.config.root_dir,"samsum_dataset"))
+    # 1) Load from a true local path
+        dataset_dir = self.config.data_path.resolve().as_posix()
+        dataset_samsum = load_from_disk(dataset_dir)
+
+    # 2) Tokenize
+        dataset_samsum_pt = dataset_samsum.map(
+        self.convert_examples_to_features,
+        batched=True
+    )
+
+    # 3) Save to a true local path
+        output_dir = (self.config.root_dir / "samsum_dataset").resolve().as_posix()
+        dataset_samsum_pt.save_to_disk(output_dir)
+
+
+    
